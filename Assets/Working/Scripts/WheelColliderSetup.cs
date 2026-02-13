@@ -70,9 +70,10 @@ public class WheelColliderSetup : MonoBehaviour
         }
         
         // 기본 설정
-        wheel.radius = wheelRadius;
         wheel.mass = wheelMass;
+        wheel.radius = wheelRadius;
         wheel.suspensionDistance = suspensionDistance;
+        wheel.forceAppPointDistance = 0.05f; // 안정성 향상
         
         // 서스펜션 스프링 설정
         JointSpring spring = wheel.suspensionSpring;
