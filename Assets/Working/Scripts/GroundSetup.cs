@@ -7,10 +7,10 @@ using UnityEngine;
 public class GroundSetup : MonoBehaviour
 {
     [Header("=== Collider 설정 ===")]
-    [Tooltip("자동으로 Collider 추가")]
-    public bool autoAddCollider = true;
+    [Tooltip("⚠️ 자동 Collider 추가 비활성화됨 - 수동으로 추가하세요")]
+    public bool autoAddCollider = false;
     
-    [Tooltip("PhysicMaterial 적용 (선택사항)")]
+    [Tooltip("PhysicMaterial 적용 (선택사항) - Bounciness=0 권장!")]
     public PhysicsMaterial physicMaterial;
     
     void Awake()

@@ -7,27 +7,59 @@ public class Movement : MonoBehaviour
     public DriveType driveType = DriveType.RWD;
     
     [Header("=== 차량 기본 설정 ===")]
-    [Range(0.5f, 5f)]
-    public float vehicleMass = 1.5f; // RC카 무게 (kg)
-    public Vector3 centerOfMass = new Vector3(0f, -0.1f, 0f); // 낮은 무게중심
+    [Tooltip("차량 무게 (권장: 15kg)")]
+    [Range(5f, 50f)]
+    public float vehicleMass = 15.0f;
+    
+    [Tooltip("무게중심 (낮을수록 안정적, 권장: Y=-0.2)")]
+    public Vector3 centerOfMass = new Vector3(0f, -0.2f, 0f);
+    
+    [Header("=== 휠 콜라이더 서스펜션 설정 ===")]
+    [Tooltip("서스펜션 거리 (권장: 0.2m)")]
+    public float suspensionDistance = 0.2f;
+    
+    [Tooltip("스프링 강도 (권장: 35000) - 차체 무게 지탱")]
+    public float springStrength = 35000f; 
+    
+    [Tooltip("댐퍼 강도 (권장: 4500) - 튀는 것 방지")]
+    public float damperStrength = 4500f;
+    
+    [Tooltip("타겟 포지션 (권장: 0.5)")]
+    public float targetPosition = 0.5f;
+    
+    [Tooltip("휠 반지름 (권장: 0.08m = 8cm)")]
+    public float wheelRadius = 0.08f;
+    
+    [Tooltip("휠 질량 (권장: 1kg)")]
+    public float wheelMass = 1.0f;
     
     [Header("=== 모터/엔진 설정 ===")]
-    [Tooltip("모터: 빠른 초반 가속, 낮은 최고속도")]
-    public float motorMaxSpeed = 30f; // km/h
+    [Tooltip("모터: 빠른 초반 가속, 낮은 최고속도 (권장: 30km/h)")]
+    public float motorMaxSpeed = 30f;
+    
+    [Tooltip("모터 토크 (권장: 150)")]
     public float motorTorque = 150f;
     public AnimationCurve motorTorqueCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0.3f);
     
-    [Tooltip("엔진: 리니어한 가속, 높은 최고속도")]
-    public float engineMaxSpeed = 50f; // km/h
+    [Tooltip("엔진: 리니어한 가속, 높은 최고속도 (권장: 50km/h)")]
+    public float engineMaxSpeed = 50f;
+    
+    [Tooltip("엔진 토크 (권장: 100)")]
     public float engineTorque = 100f;
     public AnimationCurve engineTorqueCurve = AnimationCurve.Linear(0f, 0.5f, 1f, 1f);
     
     [Header("=== 조향 설정 ===")]
+    [Tooltip("최대 조향 각도 (권장: 35도)")]
     public float maxSteeringAngle = 35f;
+    
+    [Tooltip("조향 속도 (권장: 3)")]
     public float steeringSpeed = 3f;
     
     [Header("=== 브레이크 설정 ===")]
+    [Tooltip("브레이크 힘 (권장: 500)")]
     public float brakeForce = 500f;
+    
+    [Tooltip("자연 감속 배수 (권장: 2)")]
     public float decelerationMultiplier = 2f;
     
     [Header("=== 휠 콜라이더 ===")]
@@ -84,17 +116,16 @@ public class Movement : MonoBehaviour
     
     void Start()
     {
-        // Rigidbody 설정
+        // Rigidbody 가져오기 (자동 생성 안함 - 수동으로 추가 필요)
         rb = GetComponent<Rigidbody>();
         if (rb == null)
         {
-            rb = gameObject.AddComponent<Rigidbody>();
+            Debug.LogError("[Movement] Rigidbody가 없습니다! Car 오브젝트에 Rigidbody를 추가하세요.");
+            return;
         }
         
-        rb.mass = vehicleMass;
+        // Center of Mass만 적용 (나머지는 Inspector에서 수동 설정)
         rb.centerOfMass = centerOfMass;
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
-        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         
         // 기본 휠 프릭션 저장
         SaveDefaultWheelFriction();
@@ -123,6 +154,25 @@ public class Movement : MonoBehaviour
         // 지면 체크
         CheckGroundStatus();
         
+        // 과도한 Y축 속도 강제 제한 (통통 튀는 것 완전 방지)
+        Vector3 vel = rb.linearVelocity;
+        if (vel.y > 2f)
+        {
+            vel.y = 2f;
+            rb.linearVelocity = vel;
+        }
+        else if (vel.y < -5f)
+        {
+            vel.y = -5f;
+            rb.linearVelocity = vel;
+        }
+        
+        // 지면에 있을 때 강한 아래 방향 힘 추가 (접지력 대폭 향상)
+        if (isGrounded)
+        {
+            rb.AddForce(-transform.up * vehicleMass * 15f, ForceMode.Force);
+        }
+        
         // 조향
         HandleSteering();
         
@@ -135,7 +185,7 @@ public class Movement : MonoBehaviour
         // RC카 특유의 가벼움 - 공중에서 회전하기 쉽게
         if (!isGrounded)
         {
-            rb.AddTorque(steeringInput * 10f * Vector3.up, ForceMode.Acceleration);
+            rb.AddTorque(steeringInput * 3f * Vector3.up, ForceMode.Acceleration);
         }
     }
     

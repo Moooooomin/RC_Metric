@@ -8,30 +8,34 @@ using UnityEngine;
 public class WheelColliderSetup : MonoBehaviour
 {
     [Header("=== 자동 설정 ===")]
-    public bool autoSetupOnStart = true;
+    [Tooltip("⚠️ 자동 설정 비활성화됨 - Inspector에서 수동으로 WheelCollider를 설정하세요")]
+    public bool autoSetupOnStart = false;
     public bool showDebugInfo = true;
     
-    [Header("=== 휠 기본 설정 ===")]
-    [Tooltip("휠 반지름 (RC카는 0.05~0.15)")]
-    public float wheelRadius = 0.1f;
+    [Header("=== 휠 기본 설정 (참고용) ===")]
+    [Tooltip("휠 반지름 (권장: 0.08m = 8cm)")]
+    public float wheelRadius = 0.08f;
     
-    [Tooltip("휠 무게")]
-    public float wheelMass = 0.2f;
+    [Tooltip("휠 무게 (권장: 1kg)")]
+    public float wheelMass = 1.0f;
     
-    [Tooltip("서스펜션 거리 (RC카는 0.05~0.15)")]
-    public float suspensionDistance = 0.1f;
+    [Tooltip("서스펜션 거리 (권장: 0.2m)")]
+    public float suspensionDistance = 0.2f;
     
-    [Tooltip("서스펜션 스프링 강도")]
+    [Tooltip("서스펜션 스프링 강도 (권장: 35000)")]
     public float suspensionSpring = 35000f;
     
-    [Tooltip("서스펜션 댐퍼")]
+    [Tooltip("서스펜션 댐퍼 (권장: 4500)")]
     public float suspensionDamper = 4500f;
     
-    [Tooltip("서스펜션 목표 위치 (0~1)")]
+    [Tooltip("서스펜션 목표 위치 (권장: 0.5)")]
     public float suspensionTargetPosition = 0.5f;
     
-    [Header("=== 프릭션 설정 ===")]
+    [Header("=== 프릭션 설정 (참고용) ===")]
+    [Tooltip("전방 강성 (권장: 1.5)")]
     public float forwardStiffness = 1.5f;
+    
+    [Tooltip("측면 강성 (권장: 1.5)")]
     public float sidewaysStiffness = 1.5f;
     
     private Movement movement;
